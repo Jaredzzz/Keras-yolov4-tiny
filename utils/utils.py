@@ -60,7 +60,7 @@ def evaluate(model,
         pred_labels = np.array([box.label for box in pred_boxes])        
         
         if len(pred_boxes) > 0:
-            pred_boxes = np.array([[box.xmin, box.ymin, box.xmax, box.ymax, box.severity, box.get_score()] for box in pred_boxes])
+            pred_boxes = np.array([[box.xmin, box.ymin, box.xmax, box.ymax, box.get_score()] for box in pred_boxes])
         else:
             pred_boxes = np.array([[]])  
         
@@ -275,7 +275,7 @@ def get_yolo_boxes(model, images, net_h, net_w, anchors, obj_thresh, nms_thresh)
 
         # decode the output of the network
         for j in range(len(yolos)):
-            yolo_anchors = anchors[(2-j)*6:(3-j)*6]  # config['model']['anchors']
+            yolo_anchors = anchors[(1-j)*6:(2-j)*6]  # config['model']['anchors']
             boxes += decode_netout(yolos[j], yolo_anchors, obj_thresh, net_h, net_w)
 
         # correct the sizes of the bounding boxes

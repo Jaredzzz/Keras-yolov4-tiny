@@ -159,9 +159,9 @@ class YoloLayer(Layer):
         wh_delta = xywh_mask * tf.square(pred_box_wh - true_box_wh) * box_loss_scale * self.xywh_scale
         # 计算置信度损失，原理是利用最大iou如果大于阈值才认为目标框含有检测目标
         conf_loss = object_mask * self.obj_scale * \
-                    tf.nn.sigmoid_cross_entropy_with_logits(labels=true_box_conf, logits=tf.expand_dims(y_pred[..., 5], 4)) + \
+                    tf.nn.sigmoid_cross_entropy_with_logits(labels=true_box_conf, logits=tf.expand_dims(y_pred[..., 4], 4)) + \
                     noobj_mask * self.noobj_scale * \
-                    tf.nn.sigmoid_cross_entropy_with_logits(labels=true_box_conf, logits=tf.expand_dims(y_pred[..., 5], 4))
+                    tf.nn.sigmoid_cross_entropy_with_logits(labels=true_box_conf, logits=tf.expand_dims(y_pred[..., 4], 4))
         if self.focal_loss:
             print('[INFO] Using focal loss for object loss')
             conf_loss *= self.focal(true_box_conf, pred_box_conf, alpha=0.25, gamma=2)

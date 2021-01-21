@@ -56,9 +56,9 @@ class BatchGenerator(Sequence):
         t_batch = np.zeros((r_bound - l_bound, 1, 1, 1,  self.max_box_per_image, 4))   # list of ground truth boxes
 
         # initialize the inputs and the outputs
-        yolo_1 = np.zeros((r_bound - l_bound, 1*base_grid_h,  1*base_grid_w, len(self.anchors)//3, 5+1+len(self.labels))) # desired network output 1
-        yolo_2 = np.zeros((r_bound - l_bound, 2*base_grid_h,  2*base_grid_w, len(self.anchors)//3, 5+1+len(self.labels))) # desired network output 2
-        yolos = [ yolo_2, yolo_1]
+        yolo_1 = np.zeros((r_bound - l_bound, 1*base_grid_h,  1*base_grid_w, len(self.anchors)//2, 4+1+len(self.labels))) # desired network output 1
+        yolo_2 = np.zeros((r_bound - l_bound, 2*base_grid_h,  2*base_grid_w, len(self.anchors)//2, 4+1+len(self.labels))) # desired network output 2
+        yolos = [yolo_2, yolo_1]
 
         dummy_yolo_1 = np.zeros((r_bound - l_bound, 1))
         dummy_yolo_2 = np.zeros((r_bound - l_bound, 1))
@@ -116,8 +116,8 @@ class BatchGenerator(Sequence):
                 grid_x = int(np.floor(center_x))
                 grid_y = int(np.floor(center_y))
 
-                # assign ground truth x, y, w, h, severity, confidence and class probs to y_batch
-                # 对应的yolo_1/yolo_2/yolo_3/会更新
+                # assign ground truth x, y, w, h, confidence and class probs to y_batch
+                # 对应的yolo_1/yolo_2/会更新
                 yolo[instance_count, grid_y, grid_x, max_index%3]      = 0
                 yolo[instance_count, grid_y, grid_x, max_index%3, 0:4] = box
                 yolo[instance_count, grid_y, grid_x, max_index%3, 4  ] = 1.

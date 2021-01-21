@@ -34,9 +34,9 @@ class YOLOV4_tiny(object):
         input_image = Input(shape=(None, None, 3))  # net_h, net_w, 3
         true_boxes = Input(shape=(1, 1, 1, self.max_box_per_image, 4))  # xywh
         true_yolo_1 = Input(
-            shape=(None, None, len(self.anchors) // 6, 4 + 1 + self.num_class))  # grid_h, grid_w, nb_anchor, 4+1+nb_class
+            shape=(None, None, len(self.anchors) // 4, 4 + 1 + self.num_class))  # grid_h, grid_w, nb_anchor, 4+1+nb_class
         true_yolo_2 = Input(
-            shape=(None, None, len(self.anchors) // 6, 4 + 1 + self.num_class))  # grid_h, grid_w, nb_anchor, 4+1+nb_class
+            shape=(None, None, len(self.anchors) // 4, 4 + 1 + self.num_class))  # grid_h, grid_w, nb_anchor, 4+1+nb_class
 
         if self.backbone == "YOLOV4_tiny_backbone":
             print("[INFO] Backbone: YOLOV4_tiny_backbone ")
@@ -78,7 +78,7 @@ class YOLOV4_tiny(object):
                                 self.batch_size,
                                 self.warmup_batches,
                                 self.iou_loss_thresh,
-                                self.grid_scales[0],
+                                self.grid_scales[1],
                                 self.obj_scale,
                                 self.noobj_scale,
                                 self.xywh_scale,
