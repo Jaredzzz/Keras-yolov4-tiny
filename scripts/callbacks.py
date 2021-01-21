@@ -5,6 +5,7 @@ import tensorflow as tf
 import numpy as np
 from keras.models import load_model
 
+
 class CustomTensorBoard(TensorBoard):
     """ to log the loss after each batch
     """    

@@ -2,7 +2,7 @@
 Classify a few images through our CNN.
 """
 import numpy as np
-from utils.utils import preprocess_input, fuse_image
+from utils.utils import preprocess_input
 from keras.models import load_model
 from keras import backend as K
 import matplotlib.pyplot as plt
@@ -18,14 +18,12 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 def main():
     model = load_model('../backup/RDNet_giou_100.h5',
                        compile=False,
-                       custom_objects={'Mish': Mish, 'Mish6': Mish6, 'tf': tf, 'ConvOffset2D': ConvOffset2D})
+                       custom_objects={'Mish': Mish, 'Mish6': Mish6, 'tf': tf})
     # replaced by your model name
     plot_model(model, "infer_RDNet.png", show_shapes=True)
     # Get all our test images.
     image_name = '/data/zjj_workspace/RDNet_data/dataset/images/valid/peeling_1000mm_5_Intensity_8.tiff'
-    intensity_image = io.imread(image_name)  # single channel 8-bit image
-    depth_image = io.imread(image_name.replace('Intensity', 'Range'))  # single channel 32-bit image
-    image = fuse_image(intensity_image, depth_image)
+    image = cv2.imread(image_name)
     # cv2.imshow("Image", intensity_image)
     # cv2.waitKey(0)
     # Turn the image into an array.

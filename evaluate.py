@@ -73,7 +73,7 @@ def _main_(args):
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='Evaluate Rail Defect Net model on rail defect dataset')
+    argparser = argparse.ArgumentParser(description='Evaluate keras YOLOV4_tiny on any dataset')
     argparser.add_argument('-c', '--conf', help='path to configuration file')    
     
     args = argparser.parse_args()

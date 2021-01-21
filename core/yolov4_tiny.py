@@ -9,7 +9,7 @@ from core.backbone import yolov4_tiny_backbone, _darknet_conv_block
 
 
 class YOLOV4_tiny(object):
-    """Implement keras rdn_yolov3 here"""
+    """Implement keras YOLOV4_tiny here"""
 
     def __init__(self, config, max_box_per_image, batch_size, warmup_batches):
 
@@ -31,7 +31,7 @@ class YOLOV4_tiny(object):
         self.backbone = config["model"]["backbone_model"]
 
     def model(self):
-        input_image = Input(shape=(None, None, 3))  # net_h, net_w, 2
+        input_image = Input(shape=(None, None, 3))  # net_h, net_w, 3
         true_boxes = Input(shape=(1, 1, 1, self.max_box_per_image, 4))  # xywh
         true_yolo_1 = Input(
             shape=(None, None, len(self.anchors) // 6, 4 + 1 + self.num_class))  # grid_h, grid_w, nb_anchor, 4+1+nb_class
@@ -86,8 +86,7 @@ class YOLOV4_tiny(object):
                                 self.iou_loss,
                                 self.focal_loss)([input_image, pred_conv_sbbox, true_yolo_2, true_boxes])
 
-        train_model = Model([input_image, true_boxes, true_yolo_1, true_yolo_2],
-                            [loss_yolo_1, loss_yolo_2])
+        train_model = Model([input_image, true_boxes, true_yolo_1, true_yolo_2], [loss_yolo_1, loss_yolo_2])
         infer_model = Model(input_image, [pred_conv_lbbox, pred_conv_sbbox])
         train_model.summary()
         # serialize model to JSON
@@ -97,8 +96,7 @@ class YOLOV4_tiny(object):
         # yaml_string = infer_model.to_yaml()
         # with open("model.yaml", "w") as f:
         #     f.write(yaml_string)
-        # # plot_model(train_model, "0110_train_RDNet.png", show_shapes=True)
-        # plot_model(infer_model, "0110_single_11442_infer_RDNet.png", show_shapes=False)
+        # plot_model(infer_model, "yolov4_tiny.png", show_shapes=False)
         return [train_model, infer_model]
 
 

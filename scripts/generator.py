@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from skimage import io
 from keras.utils import Sequence
 from utils.bbox import BoundBox, bbox_iou
 from utils.image import apply_random_scale_and_crop, random_distort_image, random_flip, correct_bounding_boxes

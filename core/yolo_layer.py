@@ -63,7 +63,7 @@ class YoloLayer(Layer):
         pred_box_xy = (self.cell_grid[:, :grid_h, :grid_w, :, :] + tf.sigmoid(y_pred[..., :2]))  # sigma(t_xy) + c_xy
         pred_box_wh = y_pred[..., 2:4]  # t_wh
         pred_box_conf = tf.expand_dims(tf.sigmoid(y_pred[..., 4]), 4)  # adjust confidence
-        pred_box_class = y_pred[..., 6:]  # adjust class probabilities
+        pred_box_class = y_pred[..., 5:]  # adjust class probabilities
 
         """
         Adjust ground truth
@@ -177,7 +177,6 @@ class YoloLayer(Layer):
         loss_xy = tf.reduce_sum(xy_delta, list(range(1, 5)))
         loss_wh = tf.reduce_sum(wh_delta, list(range(1, 5)))
         loss_iou = tf.reduce_sum(iou_loss, list(range(1, 5)))
-        # loss_conf = tf.reduce_sum(tf.square(conf_delta), list(range(1, 5)))
         loss_conf = tf.reduce_sum(conf_loss, list(range(1, 5)))
         loss_class = tf.reduce_sum(class_delta, list(range(1, 5)))
 
@@ -389,9 +388,3 @@ class YoloLayer(Layer):
         ciou = diou - 1.0 * alpha * v
         return ciou
 
-    def severity_diff(self, true, pred):
-        diff = tf.abs(true - pred)
-        return diff
-
-    def logit(self, x):
-        return tf.log(x/(1.0 - x))

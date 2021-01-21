@@ -3,6 +3,7 @@ import os
 import cv2
 from .colors import get_color
 
+
 class BoundBox:
     def __init__(self, xmin, ymin, xmax, ymax, c = None, classes = None):
         self.xmin = xmin
@@ -27,6 +28,7 @@ class BoundBox:
             self.score = self.classes[self.get_label()]
             
         return self.score      
+
 
 def _interval_overlap(interval_a, interval_b):
     x1, x2 = interval_a
@@ -68,7 +70,7 @@ def draw_boxes(image, boxes, labels, obj_thresh, quiet=True):
         for i in range(len(labels)):
             if box.classes[i] > obj_thresh:
                 if label_str != '': label_str += ', '
-                label_str += (labels[i] +" " + str(round(box.get_score(), 3)))
+                label_str += (labels[i] + " " + str(round(box.get_score(), 3)))
                 label = i
             if not quiet: print(label_str)
                 

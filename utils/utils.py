@@ -2,17 +2,12 @@ import cv2
 import numpy as np
 import os
 from .bbox import BoundBox, bbox_iou
-from scipy.special import expit, logit
-from skimage import io
+from scipy.special import expit
 import time
 
 
 def _sigmoid(x):
     return expit(x)
-
-
-def _logit(x):
-    return logit(x)
 
 
 def get_anchors(anchors):
@@ -83,7 +78,7 @@ def evaluate(model,
         # print(annotations)
         # copy detections to all_annotations
         for label in range(generator.num_classes()):
-            all_annotations[i][label] = annotations[annotations[:, 5] == label, :5].copy()
+            all_annotations[i][label] = annotations[annotations[:, 4] == label, :4].copy()
     # compute mAP by comparing all detections and all annotations and severity precision
     average_precisions = {}
     
@@ -93,8 +88,6 @@ def evaluate(model,
         true_positives  = np.zeros((0,))
         scores          = np.zeros((0,))
         num_annotations = 0.0
-        true_severity = np.zeros((0,))
-        false_severity = np.zeros((0,))
 
         for i in range(generator.size()):
             detections           = all_detections[i][label]
@@ -108,8 +101,6 @@ def evaluate(model,
                 if annotations.shape[0] == 0:
                     false_positives = np.append(false_positives, 1)
                     true_positives  = np.append(true_positives, 0)
-                    false_severity = np.append(false_severity, 1)
-                    true_severity = np.append(true_severity, 0)
                     continue
 
                 overlaps            = compute_overlap(np.expand_dims(d, axis=0), annotations[..., :4])
@@ -137,7 +128,6 @@ def evaluate(model,
         indices         = np.argsort(-scores)
         false_positives = false_positives[indices]
         true_positives  = true_positives[indices]
-        num_true_positive = len(true_severity)
 
         # compute false positives and true positives
         false_positives = np.cumsum(false_positives)
@@ -220,7 +210,7 @@ def decode_netout(netout, anchors, obj_thresh, net_h, net_w):
                 continue
             
             # first 4 elements are x, y, w, and h
-            x, y, w, h = netout[row,col,b,:4]
+            x, y, w, h = netout[row, col, b, :4]
 
             x = (col + x) / grid_w  # center position, unit: image width
             y = (row + y) / grid_h  # center position, unit: image height
@@ -249,7 +239,7 @@ def preprocess_input(image, net_h, net_w):
         new_h = net_h
 
     # resize the image to the new size
-    resized = cv2.resize(image[:,:,::-1]/255., (new_w, new_h))
+    resized = cv2.resize(image[:, :, ::-1]/255., (new_w, new_h))
 
     # embed the image into the standard letter box
     new_image = np.ones((net_h, net_w, 3)) * 0.5
@@ -280,12 +270,12 @@ def get_yolo_boxes(model, images, net_h, net_w, anchors, obj_thresh, nms_thresh)
     batch_boxes  = [None]*nb_images
 
     for i in range(nb_images):
-        yolos = [batch_output[0][i], batch_output[1][i], batch_output[2][i]]
+        yolos = [batch_output[0][i], batch_output[1][i]]
         boxes = []
 
         # decode the output of the network
         for j in range(len(yolos)):
-            yolo_anchors = anchors[(2-j)*6:(3-j)*6] # config['model']['anchors']
+            yolo_anchors = anchors[(2-j)*6:(3-j)*6]  # config['model']['anchors']
             boxes += decode_netout(yolos[j], yolo_anchors, obj_thresh, net_h, net_w)
 
         # correct the sizes of the bounding boxes
