@@ -5,23 +5,23 @@
         "max_input_size":       640,
         "backbone_model":       "YOLOV4_tiny_backbone",
         "anchors":              [22,106, 24,256, 32,43, 38,103, 47,263, 48,149],
-        "labels":               ["abrasion","foreign-body","peeling","scratch"]
+        "labels":               ["V", "W300-1", "WJ_8", "WJ_7"]
     },
 
     "train": {
-        "train_image_folder":   "/data/zjj_workspace/RDNet_data/dataset/images/train/",
-        "train_annot_folder":   "/data/zjj_workspace/RDNet_data/dataset/annotations/train/",
-        "cache_name":           "data/RDNet_train.pkl",
+        "train_image_folder":   "E:/Data/fastener/dataset/images/train/",
+        "train_annot_folder":   "E:/Data/fastener/dataset/annotations/train/",
+        "cache_name":           "data/fastener_train.pkl",
 
-        "train_times":          4,
+        "train_times":          2,
         "batch_size":           8,
         "learning_rate":        0.001,
-        "nb_epochs":            200,
+        "nb_epochs":            100,
         "warmup_epochs":        2,
         "iou_loss":             "mse",
         "focal_loss":           false,
         "iou_loss_thresh":      0.5,
-        "gpus":                 "2,3",
+        "gpus":                 "0",
 
         "grid_scales":          [1,1],
         "obj_scale":            5,
@@ -30,21 +30,21 @@
         "class_scale":          5,
 
         "tensorboard_dir":      "logs",
-        "saved_weights_name":   "backup/RDNet_mse_100.h5",
+        "saved_weights_name":   "backup/yolov4-tiny_fastener_mse_100.h5",
         "debug":                false
     },
 
     "valid": {
-        "valid_image_folder":   "/data/zjj_workspace/RDNet_data/dataset/images/valid/",
-        "valid_annot_folder":   "/data/zjj_workspace/RDNet_data/dataset/annotations/valid/",
-        "cache_name":           "data/RDNet_valid.pkl",
+        "valid_image_folder":   "E:/Data/fastener/dataset/images/valid/",
+        "valid_annot_folder":   "E:/Data/fastener/dataset/annotations/valid/",
+        "cache_name":           "data/fastener_valid.pkl",
         "valid_times":          1
     },
 
 	"test": {
-        "test_image_folder":   "/data/zjj_workspace/RDNet_data/dataset/images/test/",
-        "test_annot_folder":   "/data/zjj_workspace/RDNet_data/dataset/annotations/test/",
-        "cache_name":           "data/RDNet_test.pkl",
+        "test_image_folder":   "E:/Data/fastener/dataset/images/test/",
+        "test_annot_folder":   "E:/Data/fastener/dataset/annotations/test/",
+        "cache_name":           "data/fastener_test.pkl",
         "iou_threshold":        0.5,
         "obj_thresh" :          0.5,
         "nms_thresh" :          0.45
