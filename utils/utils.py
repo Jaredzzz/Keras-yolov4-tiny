@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-from .bbox import BoundBox, bbox_iou
+from .bbox import BoundBox, bbox_iou, bbox_diounms
 from scipy.special import expit
 import time
 
@@ -30,6 +30,8 @@ def evaluate(model,
              nms_thresh=0.45,
              net_h=512,
              net_w=512,
+             nms_kind="greedynms",
+             beta=0.6,
              save_path=None):
     """ Evaluate a given dataset using a given model.
     code originally from https://github.com/fizyr/keras-retinanet
@@ -54,7 +56,8 @@ def evaluate(model,
         raw_image = [generator.load_image(i)]
 
         # make the boxes and the labels
-        pred_batch_boxes, _ = get_yolo_boxes(model, raw_image, net_h, net_w, generator.get_anchors(), obj_thresh, nms_thresh)
+        pred_batch_boxes, _ = get_yolo_boxes(model, raw_image, net_h, net_w, generator.get_anchors(), obj_thresh,
+                                             nms_thresh, nms_kind, beta)
         pred_boxes = pred_batch_boxes[0]
         score = np.array([box.get_score() for box in pred_boxes])
         pred_labels = np.array([box.label for box in pred_boxes])        
@@ -164,7 +167,7 @@ def correct_yolo_boxes(boxes, image_h, image_w, net_h, net_w):
         boxes[i].ymax = int((boxes[i].ymax - y_offset) / y_scale * image_h)
 
 
-def do_nms(boxes, nms_thresh):
+def do_nms(boxes, nms_thresh, nms_kind, beta):
     if len(boxes) > 0:
         nb_class = len(boxes[0].classes)
     else:
@@ -181,8 +184,12 @@ def do_nms(boxes, nms_thresh):
             for j in range(i+1, len(sorted_indices)):
                 index_j = sorted_indices[j]
 
-                if bbox_iou(boxes[index_i], boxes[index_j]) >= nms_thresh:
+                if bbox_iou(boxes[index_i], boxes[index_j]) >= nms_thresh and nms_kind == "greedynms":
                     boxes[index_j].classes[c] = 0
+                elif bbox_diounms(boxes[index_i], boxes[index_j], beta) >= nms_thresh and nms_kind == "diounms":
+                    boxes[index_j].classes[c] = 0
+                else:
+                    pass
 
 
 def decode_netout(netout, anchors, obj_thresh, net_h, net_w):
@@ -253,7 +260,7 @@ def normalize(image):
     return image/255.
 
 
-def get_yolo_boxes(model, images, net_h, net_w, anchors, obj_thresh, nms_thresh):
+def get_yolo_boxes(model, images, net_h, net_w, anchors, obj_thresh, nms_thresh, nms_kind, beta):
     image_h, image_w, _ = images[0].shape
     nb_images           = len(images)
     batch_input         = np.zeros((nb_images, net_h, net_w, 3))
@@ -282,7 +289,7 @@ def get_yolo_boxes(model, images, net_h, net_w, anchors, obj_thresh, nms_thresh)
         correct_yolo_boxes(boxes, image_h, image_w, net_h, net_w)
 
         # suppress non-maximal boxes
-        do_nms(boxes, nms_thresh)        
+        do_nms(boxes, nms_thresh, nms_kind, beta)
            
         batch_boxes[i] = boxes
 

@@ -3,9 +3,9 @@ import numpy as np
 import random
 import shutil
 
-val_percent = 0.15
-train_percent = 0.7
-test_percent = 0.15
+val_percent = 0.1
+train_percent = 0.8
+test_percent = 0.1
 image_path = "E:/Data/fastener/VOCdevkit/VOC2007/JPEGImages"
 xml_path = "E:/Data/fastener/VOCdevkit/VOC2007/Annotations"
 

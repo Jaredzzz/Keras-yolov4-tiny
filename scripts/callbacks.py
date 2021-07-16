@@ -86,7 +86,7 @@ class CustomModelCheckpoint(ModelCheckpoint):
                 else:
                     self.model_to_save.save(filepath, overwrite=True)
         if self.addtion_save:
-            if (epoch+1) % 5 == 0:
+            if (epoch+1) % 5 == 0 and (epoch+1)>19:
                 average_precisions = evaluate(self.model_to_save, self.valid_data)
                 ap = []
                 print('[INFO] Epoch: %05d' % (epoch + 1))
@@ -104,7 +104,7 @@ class CustomModelCheckpoint(ModelCheckpoint):
                     self.model_to_save.save(str(self.addtion_save).split('.')[0] + '_mAP_best.h5', overwrite=True)
                 else:
                     print('[INFO] Best mAP did not improve from {:.6f}'.format(self.best_mAP))
-
+            if (epoch+1) % 10 == 0:
                 self.model_to_save.save(str(self.addtion_save).split('.')[0] + '_%04d.h5' % (epoch + 1), overwrite=True)
         super(CustomModelCheckpoint, self).on_batch_end(epoch, logs)
 

@@ -60,6 +60,42 @@ def bbox_iou(box1, box2):
     return float(intersect) / union
 
 
+def bbox_diounms(box1, box2, beta):
+    intersect_w = _interval_overlap([box1.xmin, box1.xmax], [box2.xmin, box2.xmax])
+    intersect_h = _interval_overlap([box1.ymin, box1.ymax], [box2.ymin, box2.ymax])
+
+    intersect = intersect_w * intersect_h
+
+    w1, h1 = box1.xmax - box1.xmin, box1.ymax - box1.ymin
+    w2, h2 = box2.xmax - box2.xmin, box2.ymax - box2.ymin
+
+    union = w1 * h1 + w2 * h2 - intersect
+
+    iou = float(intersect / union)
+
+    # 计算最小外接矩形C的左上角和右下角坐标
+    enclose_left_up = min(box1.xmin, box2.xmin), min(box1.ymin, box2.ymin)
+    enclose_right_down = max(box1.xmax, box2.xmax), max(box1.ymax, box2.ymax)
+
+    # 计算最小闭合面C的宽高,与其对角线长的平方
+    enclose = max(enclose_right_down[0] - enclose_left_up[0], 0.0), max(enclose_right_down[1] - enclose_left_up[1], 0.0)
+    enclose_diagonal_line = pow(enclose[0], 2) + pow(enclose[1], 2)
+
+    if enclose_diagonal_line == 0:
+        return iou
+
+    box1_xy = (box1.xmax + box1.xmin)/2, (box1.ymax + box1.ymin)/2
+    box2_xy = (box2.xmax + box2.xmin) / 2, (box2.ymax + box2.ymin) / 2
+    # 计算两个框中心点的距离平方
+    distance_box_center = pow((box1_xy[0] - box2_xy[0]), 2) + pow((box1_xy[1] - box2_xy[1]), 2)
+
+    # calculate diou
+    diou_term = pow(distance_box_center / enclose_diagonal_line, beta)
+
+    diou = iou - 1.0 * diou_term
+
+    return diou
+
 def draw_boxes(image, boxes, labels, obj_thresh, quiet=True):
     obj = []
     allobj = []
