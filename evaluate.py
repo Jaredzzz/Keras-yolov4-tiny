@@ -44,7 +44,8 @@ def _main_(args):
         max_net_size        = config['model']['max_input_size'],   
         shuffle             = True, 
         jitter              = 0.0, 
-        norm                = normalize
+        norm                = normalize,
+        tiny                = config['model']['tiny']
     )
 
     ###############################
@@ -73,7 +74,7 @@ def _main_(args):
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='Evaluate keras YOLOV4_tiny on any dataset')
+    argparser = argparse.ArgumentParser(description='Evaluate keras YOLOV4_tiny or YOLOV4 on any dataset')
     argparser.add_argument('-c', '--conf', help='path to configuration file')    
     
     args = argparser.parse_args()

@@ -4,6 +4,7 @@ import numpy as np
 import json
 from scripts.voc import parse_voc_annotation
 from core.yolov4_tiny import YOLOV4_tiny, dummy_loss
+from core.yolov4 import YOLOV4
 from scripts.generator import BatchGenerator
 from utils.utils import normalize, evaluate, makedirs
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
@@ -132,6 +133,23 @@ def create_model(
                 batch_size=config["train"]["batch_size"],
                 warmup_batches=warmup_batches)
             template_model, infer_model = yolo_model.model()
+    elif config["model"]["model_name"] == "YOLOV4":
+        print('[INFO] YOLOV4 Model Creating...')
+        if multi_gpu > 1:
+            with tf.device('/cpu:1'):
+                yolo_model = YOLOV4(
+                    config=config,
+                    max_box_per_image=max_box_per_image,
+                    batch_size=config["train"]["batch_size"] // multi_gpu,
+                    warmup_batches=warmup_batches)
+                template_model, infer_model = yolo_model.model()
+        else:
+            yolo_model = YOLOV4(
+                config=config,
+                max_box_per_image=max_box_per_image,
+                batch_size=config["train"]["batch_size"],
+                warmup_batches=warmup_batches)
+            template_model, infer_model = yolo_model.model()
     else:
         pass
 
@@ -189,7 +207,8 @@ def _main_(args):
         max_net_size        = config['model']['max_input_size'],
         shuffle             = True,
         jitter              = 0.3,
-        norm                = normalize
+        norm                = normalize,
+        tiny                = config['model']['tiny']
     )
 
     valid_generator = BatchGenerator(
@@ -203,7 +222,8 @@ def _main_(args):
         max_net_size        = config['model']['max_input_size'],
         shuffle             = True,
         jitter              = 0.0,
-        norm                = normalize
+        norm                = normalize,
+        tiny                = config['model']['tiny']
     )
     print("[INFO] Creating Model...")
     ###############################
@@ -276,7 +296,7 @@ def _main_(args):
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description='train and evaluate keras YOLOV4_tiny on any dataset')
+    argparser = argparse.ArgumentParser(description='train and evaluate keras YOLOV4_tiny or YOLOV4 on any dataset')
     argparser.add_argument('-c', '--conf', default='config.json', help='path to configuration file')
 
     args = argparser.parse_args()
