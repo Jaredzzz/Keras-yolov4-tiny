@@ -157,14 +157,27 @@ def correct_yolo_boxes(boxes, image_h, image_w, net_h, net_w):
         new_h = net_w
         new_w = (image_w*net_h)/image_h
         
-    for i in range(len(boxes)):
-        x_offset, x_scale = (net_w - new_w)/2./net_w, float(new_w)/net_w
-        y_offset, y_scale = (net_h - new_h)/2./net_h, float(new_h)/net_h
-        
+    for i in range(len(boxes)-1, -1, -1):
+        x_offset, x_scale = (net_w - new_w) / 2. / net_w, float(new_w) / net_w
+        y_offset, y_scale = (net_h - new_h) / 2. / net_h, float(new_h) / net_h
+
         boxes[i].xmin = int((boxes[i].xmin - x_offset) / x_scale * image_w)
         boxes[i].xmax = int((boxes[i].xmax - x_offset) / x_scale * image_w)
         boxes[i].ymin = int((boxes[i].ymin - y_offset) / y_scale * image_h)
         boxes[i].ymax = int((boxes[i].ymax - y_offset) / y_scale * image_h)
+
+        # print(boxes[i].xmin, boxes[i].ymin, boxes[i].xmax, boxes[i].ymax)
+        if boxes[i].xmax < 0 or boxes[i].ymax < 0:
+            boxes.pop(i)
+            continue
+        if boxes[i].xmin < 0: boxes[i].xmin = 0
+        if boxes[i].ymin < 0: boxes[i].ymin = 0
+        if boxes[i].xmax > image_w: boxes[i].xmax = image_w
+        if boxes[i].ymax > image_h: boxes[i].ymax = image_h
+        if boxes[i].xmin > boxes[i].xmax: boxes[i].xmin, boxes[i].xmax = boxes[i].xmax, boxes[i].xmin
+        if boxes[i].ymin > boxes[i].ymax: boxes[i].ymin, boxes[i].ymax = boxes[i].ymax, boxes[i].ymin
+        if boxes[i].xmin == boxes[i].xmax or boxes[i].ymin == boxes[i].ymax:
+            boxes.pop(i)
 
 
 def do_nms(boxes, nms_thresh, nms_kind, beta):
